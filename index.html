@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Assam Brendan — MLOps Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bat-black: #0a0a0f;
+    --bat-dark: #0f0f1a;
+    --spider-red: #c0392b;
+    --spider-red-bright: #e74c3c;
+    --bat-yellow: #f0c040;
+    --card-bg: rgba(15,15,26,0.85);
+    --border: rgba(192,57,43,0.25);
+    --text-primary: #e8e8f0;
+    --text-muted: #8888aa;
+    --glow-red: 0 0 18px rgba(231,76,60,0.7);
+    --glow-yellow: 0 0 18px rgba(240,192,64,0.7);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bat-black);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    overflow-x: hidden;
+  }
+  #web-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; opacity: 0.35;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; width: 100%;
+    padding: 18px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,15,0.98), transparent);
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 3px;
+    color: var(--bat-yellow); text-shadow: var(--glow-yellow);
+  }
+  .nav-logo span { color: var(--spider-red-bright); text-shadow: var(--glow-red); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none;
+    font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;
+    transition: color .3s; position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--bat-yellow); transition: width .3s;
+  }
+  .nav-links a:hover { color: var(--bat-yellow); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 120px 60px 60px;
+    position: relative; z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.8rem;
+    letter-spacing: 4px; color: var(--spider-red-bright); margin-bottom: 16px;
+    animation: fadeUp .6s ease both;
+  }
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 10vw, 9rem); line-height: 0.9; color: #fff;
+    animation: fadeUp .7s .1s ease both;
+  }
+  .hero-name .hollow {
+    -webkit-text-stroke: 2px var(--spider-red-bright);
+    color: transparent;
+  }
+  .hero-role {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.4rem, 3.5vw, 2.8rem); letter-spacing: 6px;
+    color: var(--bat-yellow); text-shadow: var(--glow-yellow);
+    margin-top: 8px; animation: fadeUp .7s .2s ease both;
+  }
+  .hero-desc {
+    max-width: 520px; margin-top: 24px;
+    color: var(--text-muted); font-size: 1rem; line-height: 1.7;
+    animation: fadeUp .7s .3s ease both;
+  }
+  .hero-cta {
+    margin-top: 38px; display: flex; gap: 18px;
+    animation: fadeUp .7s .4s ease both;
+  }
+  .btn-primary {
+    padding: 13px 32px; background: var(--spider-red);
+    color: #fff; font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 3px; border: none; cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition: background .3s, box-shadow .3s; text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { background: var(--spider-red-bright); box-shadow: var(--glow-red); }
+  .btn-outline {
+    padding: 13px 32px; background: transparent;
+    color: var(--bat-yellow); font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 3px;
+    border: 1px solid var(--bat-yellow); cursor: pointer;
+    text-decoration: none; display: inline-block;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition: background .3s, box-shadow .3s;
+  }
+  .btn-outline:hover { background: rgba(240,192,64,0.1); box-shadow: var(--glow-yellow); }
+
+  /* Bat SVG behind hero */
+  .bat-bg {
+    position: absolute; right: 6%; top: 50%; transform: translateY(-50%);
+    width: min(420px, 45vw); opacity: 0.05; pointer-events: none;
+  }
+
+  /* SECTIONS */
+  section { padding: 100px 60px; position: relative; z-index: 1; }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+    letter-spacing: 5px; color: var(--spider-red); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; color: #fff; margin-bottom: 0;
+  }
+  .section-title span { color: var(--bat-yellow); }
+  .divider {
+    width: 80px; height: 3px;
+    background: linear-gradient(90deg, var(--spider-red-bright), var(--bat-yellow));
+    margin: 14px 0 52px;
+  }
+
+  /* SKILLS */
+  #skills { background: var(--bat-dark); }
+  .skills-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px;
+  }
+  .skill-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 26px 22px; position: relative; overflow: hidden;
+    transition: border-color .3s, transform .3s;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  }
+  .skill-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 0;
+    background: linear-gradient(to bottom, var(--spider-red-bright), var(--bat-yellow));
+    transition: height .4s;
+  }
+  .skill-card:hover { border-color: var(--spider-red-bright); transform: translateY(-4px); }
+  .skill-card:hover::before { height: 100%; }
+  .skill-icon { font-size: 1.9rem; margin-bottom: 12px; display: block; }
+  .skill-name {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem;
+    letter-spacing: 2px; color: var(--bat-yellow); margin-bottom: 8px;
+  }
+  .skill-desc { color: var(--text-muted); font-size: 0.88rem; line-height: 1.55; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .skill-tag {
+    background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3);
+    padding: 2px 10px; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; color: var(--spider-red-bright);
+  }
+
+  /* PROJECTS */
+  #projects { background: var(--bat-black); }
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 26px;
+  }
+  .project-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 30px 26px 26px; position: relative; overflow: hidden;
+    transition: transform .3s, border-color .3s;
+  }
+  .project-card::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 0; height: 0; border-style: solid;
+    border-width: 0 28px 28px 0;
+    border-color: transparent var(--spider-red-bright) transparent transparent;
+    transition: border-width .3s;
+  }
+  .project-card:hover { transform: translateY(-6px); border-color: var(--bat-yellow); }
+  .project-card:hover::after { border-width: 0 44px 44px 0; border-color: transparent var(--bat-yellow) transparent transparent; }
+  .project-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 4rem;
+    color: rgba(192,57,43,0.1); position: absolute; top: 10px; right: 18px;
+    line-height: 1; pointer-events: none;
+  }
+  .project-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem;
+    letter-spacing: 2px; color: #fff; margin-bottom: 10px;
+  }
+  .project-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+  .project-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .stack-badge {
+    background: rgba(240,192,64,0.08); border: 1px solid rgba(240,192,64,0.2);
+    padding: 2px 11px; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; color: var(--bat-yellow);
+  }
+
+  /* EXPERIENCE */
+  #experience { background: var(--bat-dark); }
+  .timeline { position: relative; max-width: 880px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%;
+    background: linear-gradient(to bottom, var(--spider-red-bright), var(--bat-yellow), transparent);
+  }
+  .timeline-item { padding: 0 0 52px 40px; position: relative; }
+  .timeline-dot {
+    position: absolute; left: -7px; top: 5px; width: 16px; height: 16px;
+    background: var(--spider-red-bright); border: 2px solid var(--bat-black);
+    transform: rotate(45deg); box-shadow: var(--glow-red);
+  }
+  .exp-period {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.78rem;
+    color: var(--spider-red); letter-spacing: 2px; margin-bottom: 4px;
+  }
+  .exp-role {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem;
+    letter-spacing: 2px; color: #fff;
+  }
+  .exp-company {
+    color: var(--bat-yellow); font-weight: 700; font-size: 0.95rem;
+    margin-bottom: 12px; text-shadow: var(--glow-yellow);
+  }
+  .exp-bullets { list-style: none; }
+  .exp-bullets li {
+    color: var(--text-muted); font-size: 0.92rem; line-height: 1.65;
+    padding-left: 18px; position: relative; margin-bottom: 5px;
+  }
+  .exp-bullets li::before { content: '▸'; position: absolute; left: 0; color: var(--spider-red-bright); }
+
+  /* CONTACT */
+  #contact { background: var(--bat-black); text-align: center; }
+  .contact-inner { max-width: 640px; margin: 0 auto; }
+  .contact-inner .divider { margin: 14px auto 36px; }
+  .contact-links {
+    display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 30px;
+  }
+  .contact-link {
+    padding: 11px 24px; border: 1px solid var(--border);
+    color: var(--text-muted); text-decoration: none;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.82rem;
+    letter-spacing: 1.5px; transition: all .3s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .contact-link:hover { border-color: var(--spider-red-bright); color: var(--spider-red-bright); box-shadow: var(--glow-red); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 28px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+    color: var(--text-muted); border-top: 1px solid var(--border); position: relative; z-index: 1;
+  }
+
+  /* SPIDER BUTTON */
+  #spider-btn {
+    position: fixed; right: 30px; bottom: 30px;
+    width: 64px; height: 64px; background: var(--spider-red);
+    border-radius: 50%; cursor: pointer; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,0.15);
+    animation: spiderPulse 2.2s infinite; transition: transform .2s;
+    box-shadow: 0 4px 20px rgba(192,57,43,0.5);
+  }
+  #spider-btn:hover { transform: scale(1.12); }
+  #spider-btn svg { width: 36px; height: 36px; }
+  @keyframes spiderPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.55), 0 4px 20px rgba(192,57,43,0.4); }
+    50%       { box-shadow: 0 0 0 16px rgba(231,76,60,0), 0 4px 20px rgba(192,57,43,0.4); }
+  }
+
+  /* CHATBOT */
+  #chatbot {
+    position: fixed; right: 106px; bottom: 20px;
+    width: 380px; height: 520px; background: #090912;
+    border: 1px solid var(--spider-red-bright);
+    box-shadow: 0 0 50px rgba(231,76,60,0.25), 0 0 0 1px rgba(240,192,64,0.05);
+    display: flex; flex-direction: column; z-index: 998;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    transform: scale(0.7) translateY(30px); transform-origin: bottom right;
+    opacity: 0; pointer-events: none;
+    transition: transform .38s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .28s ease;
+  }
+  #chatbot.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+
+  .chat-header {
+    background: linear-gradient(90deg, rgba(26,0,0,0.95), rgba(10,0,30,0.95));
+    border-bottom: 1px solid var(--border); padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px; background: var(--spider-red);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .chat-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem;
+    letter-spacing: 2px; color: var(--bat-yellow);
+  }
+  .chat-subtitle { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--spider-red-bright); }
+  .chat-close {
+    margin-left: auto; cursor: pointer; background: none; border: none;
+    color: var(--text-muted); font-size: 1.1rem; transition: color .2s;
+  }
+  .chat-close:hover { color: var(--spider-red-bright); }
+
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    scrollbar-width: thin; scrollbar-color: var(--spider-red) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--spider-red); border-radius: 2px; }
+
+  .msg {
+    max-width: 86%; padding: 9px 13px;
+    font-size: 0.87rem; line-height: 1.5; border-radius: 2px;
+    animation: msgPop .22s ease;
+    word-break: break-word;
+  }
+  @keyframes msgPop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .msg-bot {
+    background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.22);
+    color: var(--text-primary); align-self: flex-start;
+  }
+  .msg-user {
+    background: rgba(240,192,64,0.09); border: 1px solid rgba(240,192,64,0.18);
+    color: var(--bat-yellow); align-self: flex-end;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.82rem;
+  }
+  .msg-loading {
+    background: rgba(100,100,150,0.08); border: 1px solid rgba(100,100,150,0.15);
+    color: var(--text-muted); align-self: flex-start; font-style: italic;
+    animation: msgPop .22s ease, loadingPulse 1.4s ease infinite;
+  }
+  @keyframes loadingPulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+  .chat-input-row {
+    display: flex; border-top: 1px solid var(--border);
+    background: #07070f; flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1; background: none; border: none; outline: none;
+    padding: 13px 15px; color: var(--text-primary);
+    font-family: 'Share Tech Mono', monospace; font-size: 0.83rem;
+  }
+  .chat-input::placeholder { color: var(--text-muted); }
+  .chat-send {
+    background: var(--spider-red); border: none; cursor: pointer;
+    padding: 0 18px; color: #fff; font-size: 1rem;
+    transition: background .2s; flex-shrink: 0;
+  }
+  .chat-send:hover { background: var(--spider-red-bright); }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(28px);} to {opacity:1; transform:none;} }
+
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    section, #hero { padding: 80px 22px; }
+    #chatbot { width: calc(100vw - 28px); right: 14px; bottom: 106px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="web-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">A<span>B</span></div>
+  <div class="nav-links">
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <svg class="bat-bg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+    <path fill="white" d="M200 60 C160 10 80 0 0 40 C60 40 100 60 120 100 C100 80 60 70 20 90
+    C60 90 90 110 110 140 C130 120 160 110 200 115 C240 110 270 120 290 140
+    C310 110 340 90 380 90 C340 70 300 80 280 100 C300 60 340 40 400 40
+    C320 0 240 10 200 60Z"/>
+  </svg>
+  <p class="hero-eyebrow">// SYSTEM ONLINE — INITIALIZING...</p>
+  <h1 class="hero-name">ASSAM<br/><span class="hollow">BRENDAN</span></h1>
+  <div class="hero-role">MLOps Engineer</div>
+  <p class="hero-desc">
+    Architecting production ML systems with the precision of a Dark Knight and the agility of a web-slinger.
+    Designing, deploying, and monitoring models that scale under pressure.
+  </p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn-primary">View Projects</a>
+    <a href="#contact" class="btn-outline">Get In Touch</a>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-label">// capabilities</p>
+  <h2 class="section-title">SKILL<span>SET</span></h2>
+  <div class="divider"></div>
+  <div class="skills-grid">
+    <div class="skill-card reveal">
+      <span class="skill-icon">⚙️</span>
+      <div class="skill-name">ML Pipeline Design</div>
+      <p class="skill-desc">End-to-end pipeline architecture for training, validation, and serving ML models at scale.</p>
+      <div class="skill-tags"><span class="skill-tag">Kubeflow</span><span class="skill-tag">ZenML</span><span class="skill-tag">Airflow</span><span class="skill-tag">MLflow</span></div>
+    </div>
+    <div class="skill-card reveal">
+      <span class="skill-icon">🚀</span>
+      <div class="skill-name">Model Deployment</div>
+      <p class="skill-desc">Containerized deployments, A/B testing, canary releases, and rollback strategies for production models.</p>
+      <div class="skill-tags"><span class="skill-tag">Docker</span><span class="skill-tag">Kubernetes</span><span class="skill-tag">FastAPI</span><span class="skill-tag">Triton</span></div>
+    </div>
+    <div class="skill-card reveal">
+      <span class="skill-icon">🔍</span>
+      <div class="skill-name">Model Monitoring</div>
+      <p class="skill-desc">Real-time drift detection, data quality checks, and performance dashboards for production models.</p>
+      <div class="skill-tags"><span class="skill-tag">Evidently</span><span class="skill-tag">Grafana</span><span class="skill-tag">Prometheus</span><span class="skill-tag">Whylogs</span></div>
+    </div>
+    <div class="skill-card reveal">
+      <span class="skill-icon">☁️</span>
+      <div class="skill-name">Cloud Infrastructure</div>
+      <p class="skill-desc">Multi-cloud ML infrastructure provisioning, cost optimization, and IaC for full reproducibility.</p>
+      <div class="skill-tags"><span class="skill-tag">AWS SageMaker</span><span class="skill-tag">GCP Vertex</span><span class="skill-tag">Terraform</span></div>
+    </div>
+    <div class="skill-card reveal">
+      <span class="skill-icon">🧠</span>
+      <div class="skill-name">Model Architecture</div>
+      <p class="skill-desc">Designing and fine-tuning deep learning architectures for CV, NLP, and tabular prediction tasks.</p>
+      <div class="skill-tags"><span class="skill-tag">PyTorch</span><span class="skill-tag">TensorFlow</span><span class="skill-tag">HuggingFace</span><span class="skill-tag">ONNX</span></div>
+    </div>
+    <div class="skill-card reveal">
+      <span class="skill-icon">🔗</span>
+      <div class="skill-name">Feature Engineering</div>
+      <p class="skill-desc">Feature stores, transformation pipelines, and versioned datasets for reproducible training runs.</p>
+      <div class="skill-tags"><span class="skill-tag">Feast</span><span class="skill-tag">Tecton</span><span class="skill-tag">dbt</span><span class="skill-tag">Spark</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-label">// deployments</p>
+  <h2 class="section-title">FEATURED<span> PROJECTS</span></h2>
+  <div class="divider"></div>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-num">01</div>
+      <div class="project-title">PHANTOM DRIFT DETECTOR</div>
+      <p class="project-desc">Real-time model drift detection processing 2M+ predictions/day. Monitors feature distributions and triggers automated retraining pipelines on threshold violations.</p>
+      <div class="project-stack"><span class="stack-badge">Python</span><span class="stack-badge">Kafka</span><span class="stack-badge">Evidently</span><span class="stack-badge">Kubernetes</span><span class="stack-badge">Grafana</span></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">02</div>
+      <div class="project-title">DARKMATTER CV PIPELINE</div>
+      <p class="project-desc">Multi-stage computer vision pipeline for anomaly detection in industrial settings. Reduced false-positive rates by 42% via ensemble distillation and custom post-processing.</p>
+      <div class="project-stack"><span class="stack-badge">YOLOv8</span><span class="stack-badge">ONNX</span><span class="stack-badge">Triton</span><span class="stack-badge">AWS</span><span class="stack-badge">SageMaker</span></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">03</div>
+      <div class="project-title">WEBNET LLM GATEWAY</div>
+      <p class="project-desc">Production LLM serving layer with caching, routing, and observability. Handles 50K+ daily requests with sub-200ms p95 latency across 6 fine-tuned model variants.</p>
+      <div class="project-stack"><span class="stack-badge">vLLM</span><span class="stack-badge">FastAPI</span><span class="stack-badge">Redis</span><span class="stack-badge">Prometheus</span><span class="stack-badge">GCP</span></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">04</div>
+      <div class="project-title">GOTHAM FEATURE STORE</div>
+      <p class="project-desc">Centralized feature store with point-in-time correct joins for batch and online use cases. Cut feature duplication by 60% across 12 model teams.</p>
+      <div class="project-stack"><span class="stack-badge">Feast</span><span class="stack-badge">Redis</span><span class="stack-badge">BigQuery</span><span class="stack-badge">dbt</span><span class="stack-badge">Airflow</span></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">05</div>
+      <div class="project-title">SHADOWNET AUTOML ORCHESTRATOR</div>
+      <p class="project-desc">Automated HPO and architecture search pipeline using Bayesian optimization. Reduced experimentation cycles by 70% per model iteration across the team.</p>
+      <div class="project-stack"><span class="stack-badge">Optuna</span><span class="stack-badge">MLflow</span><span class="stack-badge">PyTorch</span><span class="stack-badge">Ray</span><span class="stack-badge">Kubeflow</span></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">06</div>
+      <div class="project-title">SPIDER-SENSE NLP CLASSIFIER</div>
+      <p class="project-desc">Fine-tuned transformer for high-stakes document triage. 97.2% accuracy with SHAP-powered explainability, served via edge-deployed ONNX runtime.</p>
+      <div class="project-stack"><span class="stack-badge">BERT</span><span class="stack-badge">ONNX</span><span class="stack-badge">SHAP</span><span class="stack-badge">FastAPI</span><span class="stack-badge">Azure</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <p class="section-label">// history</p>
+  <h2 class="section-title">WORK<span> EXPERIENCE</span></h2>
+  <div class="divider"></div>
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="exp-period">2022 — PRESENT</div>
+      <div class="exp-role">Senior MLOps Engineer</div>
+      <div class="exp-company">NexaCore AI · San Francisco, CA</div>
+      <ul class="exp-bullets">
+        <li>Architected and owned the core ML platform serving 40+ models in production</li>
+        <li>Reduced average model deployment time from 3 weeks to 2 days via pipeline automation</li>
+        <li>Designed drift detection framework monitoring 15M+ predictions per week</li>
+        <li>Led migration to multi-cloud infrastructure saving $420K annually in compute costs</li>
+      </ul>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="exp-period">2020 — 2022</div>
+      <div class="exp-role">ML Engineer</div>
+      <div class="exp-company">DataVault Systems · Austin, TX</div>
+      <ul class="exp-bullets">
+        <li>Built training pipelines for fraud detection models processing 5M transactions/day</li>
+        <li>Implemented A/B testing framework enabling safe rollout of model updates</li>
+        <li>Designed custom feature store with 200+ engineered features across teams</li>
+        <li>Mentored junior engineers on MLOps best practices and CI/CD for ML</li>
+      </ul>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-dot"></div>
+      <div class="exp-period">2018 — 2020</div>
+      <div class="exp-role">Data Scientist</div>
+      <div class="exp-company">Apex Analytics · New York, NY</div>
+      <ul class="exp-bullets">
+        <li>Designed and deployed NLP classification models for enterprise customer feedback analysis</li>
+        <li>Built automated reporting pipelines reducing analyst overhead by 30 hours/week</li>
+        <li>Developed time-series forecasting suite adopted by 3 enterprise clients</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <p class="section-label">// reach out</p>
+    <h2 class="section-title">GET IN<span> TOUCH</span></h2>
+    <div class="divider"></div>
+    <p style="color:var(--text-muted);line-height:1.8;font-size:.95rem">
+      Whether it's a production ML challenge, collaboration opportunity, or a conversation about
+      the frontier of MLOps — the signal is always open.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:assam@brendan.dev" class="contact-link">📧 assam@brendan.dev</a>
+      <a href="#" class="contact-link">💼 LinkedIn</a>
+      <a href="#" class="contact-link">🐙 GitHub</a>
+      <a href="#" class="contact-link">🐦 Twitter / X</a>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 ASSAM BRENDAN — BUILT IN THE DARK. DEPLOYED IN THE LIGHT.</footer>
+
+<!-- ══ SPIDER BUTTON ══ -->
+<div id="spider-btn" title="Chat with AI Assistant">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- body -->
+    <ellipse cx="50" cy="59" rx="13" ry="17" fill="white"/>
+    <!-- head -->
+    <ellipse cx="50" cy="36" rx="10" ry="10" fill="white"/>
+    <!-- eyes -->
+    <ellipse cx="46" cy="34" rx="3.5" ry="3" fill="#c0392b"/>
+    <ellipse cx="54" cy="34" rx="3.5" ry="3" fill="#c0392b"/>
+    <!-- left legs -->
+    <line x1="37" y1="52" x2="13" y2="42" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="37" y1="59" x2="11" y2="59" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="37" y1="66" x2="14" y2="76" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="39" y1="72" x2="20" y2="86" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- right legs -->
+    <line x1="63" y1="52" x2="87" y2="42" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="63" y1="59" x2="89" y2="59" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="63" y1="66" x2="86" y2="76" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+    <line x1="61" y1="72" x2="80" y2="86" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- web thread -->
+    <line x1="50" y1="26" x2="50" y2="8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- ══ CHATBOT ══ -->
+<div id="chatbot">
+  <div class="chat-header">
+    <div class="chat-avatar">🕷️</div>
+    <div>
+      <div class="chat-title">SPIDER-BOT</div>
+      <div class="chat-subtitle">// AI ASSISTANT · ONLINE</div>
+    </div>
+    <button class="chat-close" id="chat-close">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="msg msg-bot">Hey! I'm Spider-Bot — Assam's AI assistant. Ask me about his skills, projects, or experience. I've got the web covered. 🕸️</div>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" type="text" placeholder="Ask anything about Assam..."/>
+    <button class="chat-send" id="chat-send">➤</button>
+  </div>
+</div>
+
+<script>
+/* ══ WEB CANVAS ══ */
+(function() {
+  const canvas = document.getElementById('web-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    draw();
+  }
+  function drawRadialWeb(cx, cy, spokes, rings, rx, ry, color1, color2) {
+    for (let s = 0; s < spokes; s++) {
+      const a = (s / spokes) * Math.PI * 2;
+      ctx.strokeStyle = color1;
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry);
+      ctx.stroke();
+    }
+    for (let r = 1; r <= rings; r++) {
+      ctx.strokeStyle = color2;
+      ctx.beginPath();
+      for (let s = 0; s <= spokes; s++) {
+        const a = (s / spokes) * Math.PI * 2;
+        const x = cx + Math.cos(a) * (r / rings) * rx;
+        const y = cy + Math.sin(a) * (r / rings) * ry;
+        s === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.stroke();
+    }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawRadialWeb(W * 0.82, H * 0.2, 12, 8, 380, 280, 'rgba(192,57,43,0.38)', 'rgba(192,57,43,0.22)');
+    drawRadialWeb(W * 0.1, H * 0.85, 8, 5, 200, 150, 'rgba(240,192,64,0.14)', 'rgba(240,192,64,0.08)');
+    drawRadialWeb(W * 0.5, H * 1.05, 10, 4, 300, 180, 'rgba(192,57,43,0.1)', 'rgba(192,57,43,0.06)');
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ══ SCROLL REVEAL ══ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 90);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ══ CHATBOT ══ */
+const spiderBtn   = document.getElementById('spider-btn');
+const chatbot     = document.getElementById('chatbot');
+const chatClose   = document.getElementById('chat-close');
+const chatInput   = document.getElementById('chat-input');
+const chatSend    = document.getElementById('chat-send');
+const chatMessages = document.getElementById('chat-messages');
+
+spiderBtn.addEventListener('click', () => {
+  chatbot.classList.toggle('open');
+  if (chatbot.classList.contains('open')) setTimeout(() => chatInput.focus(), 350);
+});
+chatClose.addEventListener('click', () => chatbot.classList.remove('open'));
+
+function appendMsg(text, type) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+
+async function sendMessage() {
+  const query = chatInput.value.trim();
+  if (!query) return;
+  chatInput.value = '';
+  appendMsg(query, 'user');
+  const loading = appendMsg('Scanning the web… 🕸️', 'loading');
+
+  try {
+    /* ─── STEP 1: Query vector.pkI for relevant context ─── */
+    let context = '';
+    try {
+      const vRes = await fetch('https://vector.pki/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, top_k: 5 })
+      });
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        const hits = vData.results || vData.hits || [];
+        context = hits.map(r => r.text || r.content || r.chunk || '').filter(Boolean).join('\n\n');
+      }
+    } catch (vErr) {
+      console.warn('[Spider-Bot] vector.pki unreachable:', vErr.message);
+    }
+
+    /* ─── STEP 2: Send to chatbot.pkI with context ─── */
+    const cRes = await fetch('https://chatbot.pki/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: query,
+        context: context || undefined,
+        system: "You are Spider-Bot, AI assistant for Assam Brendan's MLOps portfolio. Answer concisely and helpfully about Assam's skills, projects, and experience."
+      })
+    });
+
+    if (!cRes.ok) throw new Error(`chatbot.pki returned HTTP ${cRes.status}`);
+
+    const cData = await cRes.json();
+    const reply = cData.reply || cData.message || cData.response || cData.answer || 'No response received.';
+
+    loading.remove();
+    appendMsg(reply, 'bot');
+
+  } catch (err) {
+    loading.remove();
+    appendMsg('⚠️ Could not reach the server: ' + err.message, 'bot');
+    console.error('[Spider-Bot] Error:', err);
+  }
+}
+
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+</script>
+</body>
+</html>
